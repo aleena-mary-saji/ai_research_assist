@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Research Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        #question-box {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #ask-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        #answer {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            white-space: pre-wrap;
+        }
+        #sources {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Research Assistant</h1>
+    <input type="text" id="question-box" placeholder="Type your question here..." />
+    <button id="ask-btn">Ask</button>
+
+    <div id="answer"></div>
+    <div id="sources"></div>
+
+    <script>
+        document.getElementById("ask-btn").addEventListener("click", async () => {
+            const question = document.getElementById("question-box").value;
+            if (!question) return;
+
+            document.getElementById("answer").innerText = "Loading...";
+            document.getElementById("sources").innerText = "";
+
+            try {
+                const response = await fetch("/ask", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ question })
+                });
+
+                const data = await response.json();
+
+                if (data.answer) {
+                    document.getElementById("answer").innerText = data.answer;
+                    document.getElementById("sources").innerText = "Sources: " + JSON.stringify(data.sources, null, 2);
+                } else if (data.error) {
+                    document.getElementById("answer").innerText = "Error: " + data.error;
+                }
+
+            } catch (err) {
+                document.getElementById("answer").innerText = "Request failed: " + err;
+            }
+        });
+    </script>
+</body>
+</html>
